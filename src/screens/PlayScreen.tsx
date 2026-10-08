@@ -10,6 +10,7 @@ import { fingerFor } from '../constants/fingers.ts'
 import { Keyboard } from '../components/Keyboard.tsx'
 import { ErrorMessage } from '../components/ErrorMessage.tsx'
 import { PromptLine } from '../components/PromptLine.tsx'
+import { MenuButton } from '../components/IconButtons.tsx'
 import { ScreenHeader } from '../components/ScreenHeader.tsx'
 import { getLesson, progressNoun } from '../models/levels.ts'
 import {
@@ -29,6 +30,7 @@ interface PlayScreenProps {
   lessonId: string
   soundEnabled: boolean
   onBack: () => void
+  onOpenSettings: () => void
   onComplete: (stars: 1 | 2 | 3, seconds: number, wordsPerMinute: number | null) => void
 }
 
@@ -36,6 +38,7 @@ export function PlayScreen({
   lessonId,
   soundEnabled,
   onBack,
+  onOpenSettings,
   onComplete,
 }: PlayScreenProps) {
   const lesson = getLesson(lessonId)
@@ -108,7 +111,14 @@ export function PlayScreen({
   if (!lesson || lesson.prompts.length === 0) {
     return (
       <div className="stack">
-        <ScreenHeader title="Lesson" onBack={onBack} backLabel="Lessons" />
+        <ScreenHeader
+          title="Lesson"
+          onBack={onBack}
+          backLabel="Lessons"
+          lessonsIcon
+          titleInRow
+          action={<MenuButton onClick={onOpenSettings} />}
+        />
         <ErrorMessage message="That lesson is not in the game." />
       </div>
     )
@@ -126,7 +136,14 @@ export function PlayScreen({
 
   return (
     <div className={lesson.levelId === 'master' ? 'stack play play--master' : 'stack'}>
-      <ScreenHeader title={lesson.title} onBack={onBack} backLabel="Lessons" />
+      <ScreenHeader
+        title={lesson.title}
+        onBack={onBack}
+        backLabel="Lessons"
+        lessonsIcon
+        titleInRow
+        action={<MenuButton onClick={onOpenSettings} />}
+      />
       <section className="panel prompt" aria-labelledby="prompt-heading">
         <div className="prompt__copy">
           <h2 id="prompt-heading" ref={headingRef} tabIndex={-1}>

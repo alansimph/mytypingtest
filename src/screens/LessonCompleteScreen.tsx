@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Button } from '../components/Button.tsx'
+import { MenuButton } from '../components/IconButtons.tsx'
 import { ScreenHeader } from '../components/ScreenHeader.tsx'
 import { StarCelebration } from '../components/StarCelebration.tsx'
 import { StarRow } from '../components/StarRow.tsx'
@@ -45,6 +46,7 @@ interface LessonCompleteScreenProps {
   soundEnabled: boolean
   unlockedLevelTitle: string | null
   onBack: () => void
+  onOpenSettings: () => void
   onAgain: () => void
   onNext: (() => void) | null
   onOpenUnlockedLevel: (() => void) | null
@@ -59,6 +61,7 @@ export function LessonCompleteScreen({
   soundEnabled,
   unlockedLevelTitle,
   onBack,
+  onOpenSettings,
   onAgain,
   onNext,
   onOpenUnlockedLevel,
@@ -84,7 +87,13 @@ export function LessonCompleteScreen({
 
   return (
     <div className="stack">
-      <ScreenHeader title="Stars" onBack={onBack} backLabel="Lessons" />
+      <ScreenHeader
+        title="Stars"
+        onBack={onBack}
+        backLabel="Lessons"
+        lessonsIcon
+        action={<MenuButton onClick={onOpenSettings} />}
+      />
       <section className="panel reward" aria-labelledby="reward-heading">
         <div className="reward__stars">
           <StarCelebration stars={stars} />

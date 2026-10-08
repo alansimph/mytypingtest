@@ -1,5 +1,5 @@
 import { LevelCard } from '../components/LevelCard.tsx'
-import { Button } from '../components/Button.tsx'
+import { MenuButton } from '../components/IconButtons.tsx'
 import {
   LEVELS,
   isLevelUnlocked,
@@ -18,15 +18,9 @@ export function HomeScreen({ progress, onOpenLevel, onOpenSettings }: HomeScreen
   return (
     <div className="stack">
       <header className="home-header">
-        <div>
-          <h1>myTypingTest</h1>
-          <p className="lede">Learn the keyboard, one step at a time.</p>
-        </div>
-        <Button variant="secondary" onClick={onOpenSettings}>
-          Settings
-        </Button>
+        <h1>TypingCapy</h1>
+        <MenuButton onClick={onOpenSettings} />
       </header>
-      <p className="note">A laptop or desktop keyboard works best.</p>
       <section className="stack" aria-labelledby="levels-heading">
         <h2 id="levels-heading">Choose a level</h2>
         <ul className="level-list">

@@ -1,5 +1,6 @@
 import { EmptyState } from '../components/EmptyState.tsx'
 import { ErrorMessage } from '../components/ErrorMessage.tsx'
+import { MenuButton } from '../components/IconButtons.tsx'
 import { ScreenHeader } from '../components/ScreenHeader.tsx'
 import { StarRow } from '../components/StarRow.tsx'
 import {
@@ -24,6 +25,7 @@ interface LessonScreenProps {
   progress: Progress
   onHome: () => void
   onPlay: (lessonId: string) => void
+  onOpenSettings: () => void
 }
 
 export function LessonScreen({
@@ -31,13 +33,20 @@ export function LessonScreen({
   progress,
   onHome,
   onPlay,
+  onOpenSettings,
 }: LessonScreenProps) {
   const level = getLevel(levelId)
 
   if (!level) {
     return (
       <div className="stack">
-        <ScreenHeader title="Lesson" onBack={onHome} backLabel="Home" />
+        <ScreenHeader
+          title="Lesson"
+          onBack={onHome}
+          homeIcon
+          titleInRow
+          action={<MenuButton onClick={onOpenSettings} />}
+        />
         <ErrorMessage message="That level is not in the game." />
       </div>
     )
@@ -46,7 +55,13 @@ export function LessonScreen({
   if (!isLevelUnlocked(level.id, progress)) {
     return (
       <div className="stack">
-        <ScreenHeader title={level.title} onBack={onHome} backLabel="Home" />
+        <ScreenHeader
+          title={level.title}
+          onBack={onHome}
+          homeIcon
+          titleInRow
+          action={<MenuButton onClick={onOpenSettings} />}
+        />
         <EmptyState
           title="Locked"
           message={lockTextFor(level.id) ?? 'Finish the earlier level first.'}
@@ -59,7 +74,13 @@ export function LessonScreen({
   if (lessons.length === 0) {
     return (
       <div className="stack">
-        <ScreenHeader title={level.title} onBack={onHome} backLabel="Home" />
+        <ScreenHeader
+          title={level.title}
+          onBack={onHome}
+          homeIcon
+          titleInRow
+          action={<MenuButton onClick={onOpenSettings} />}
+        />
         <EmptyState title="Not ready yet" message={comingSoon[level.id]} />
       </div>
     )
@@ -67,7 +88,13 @@ export function LessonScreen({
 
   return (
     <div className="stack">
-      <ScreenHeader title={level.title} onBack={onHome} backLabel="Home" />
+      <ScreenHeader
+        title={level.title}
+        onBack={onHome}
+        homeIcon
+        titleInRow
+        action={<MenuButton onClick={onOpenSettings} />}
+      />
       <p className="note">
         {level.id === 'beginner'
           ? 'Press one key at a time. The glowing key is the one to find.'

@@ -12,7 +12,7 @@ import {
   nextLessonAfter,
   nextLevelAfter,
 } from './models/levels.ts'
-import { withLessonResult } from './models/progress.ts'
+import { withLessonResult, emptyProgress } from './models/progress.ts'
 import { useSettings } from './hooks/useSettings.ts'
 import { loadProgress, saveProgress } from './services/storage.ts'
 import type { LevelId, Progress } from './types/index.ts'
@@ -66,6 +66,7 @@ export function App() {
           progress={progress}
           onHome={() => setView({ name: 'home' })}
           onPlay={(lessonId) => setView({ name: 'play', levelId: view.levelId, lessonId })}
+          onOpenSettings={() => setView({ name: 'settings' })}
         />
       ) : null}
       {view.name === 'play' ? (
@@ -73,6 +74,7 @@ export function App() {
           lessonId={view.lessonId}
           soundEnabled={settings.soundEnabled}
           onBack={() => setView({ name: 'lesson', levelId: view.levelId })}
+          onOpenSettings={() => setView({ name: 'settings' })}
           onComplete={(stars, seconds, wordsPerMinute) => {
             const lessonId = view.lessonId
             setProgress((current) => {
@@ -98,6 +100,7 @@ export function App() {
           lessonTitle={getLesson(view.result.lessonId)?.title ?? 'Lesson'}
           unlockedLevelTitle={unlockedLevelTitle(view.levelId, progress)}
           onBack={() => setView({ name: 'lesson', levelId: view.levelId })}
+          onOpenSettings={() => setView({ name: 'settings' })}
           onAgain={() =>
             setView({ name: 'play', levelId: view.levelId, lessonId: view.result.lessonId })
           }
@@ -126,6 +129,12 @@ export function App() {
           soundEnabled={settings.soundEnabled}
           onSoundEnabled={setSoundEnabled}
           onHome={() => setView({ name: 'home' })}
+          onOpenSettings={() => setView({ name: 'settings' })}
+          onResetLessons={() => {
+            const next = emptyProgress()
+            saveProgress(next)
+            setProgress(next)
+          }}
         />
       ) : null}
     </main>

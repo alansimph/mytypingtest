@@ -63,20 +63,75 @@ button {
   gap: var(--space-4);
 }
 
-.lede {
-  margin-top: var(--space-2);
-  font-size: 1.25rem;
-}
-
 .note {
   color: var(--color-muted);
 }
 
 .home-header {
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-4);
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+}
+
+.home-header h1 {
+  text-align: center;
+}
+
+.home-header .icon-button {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.icon-button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.level-bar {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-bar h1 {
+  min-width: 0;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.settings-actions .button {
+  min-width: 96px;
 }
 
 .screen-header {
@@ -603,11 +658,7 @@ button {
   gap: 8px;
 }
 
-.play--master .screen-header {
-  gap: 4px;
-}
-
-.play--master .screen-header h1 {
+.play--master .level-bar h1 {
   font-size: 1.35rem;
 }
 
@@ -826,14 +877,6 @@ button {
 @media (max-width: 480px) {
   h1 {
     font-size: 1.75rem;
-  }
-
-  .home-header {
-    flex-direction: column;
-  }
-
-  .home-header .button {
-    width: 100%;
   }
 
   .keyboard__row {
