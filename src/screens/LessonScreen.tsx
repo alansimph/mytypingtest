@@ -1,18 +1,22 @@
 import { EmptyState } from '../components/EmptyState.tsx'
 import { ErrorMessage } from '../components/ErrorMessage.tsx'
 import { ScreenHeader } from '../components/ScreenHeader.tsx'
+import { StarRow } from '../components/StarRow.tsx'
 import {
   getLevel,
   isLevelUnlocked,
+  lessonCountLabel,
   lessonsFor,
   lockTextFor,
 } from '../models/levels.ts'
+import { promptWordCount, starLabel } from '../services/lessonEngine.ts'
 import type { LevelId, Progress } from '../types/index.ts'
 
 const comingSoon: Record<LevelId, string> = {
   beginner: 'Beginner will ask you to press one key at a time.',
   intermediate: 'Intermediate will ask you to type short words.',
   expert: 'Expert will ask you to type sentences and punctuation.',
+  master: 'Master will ask you to type a long paragraph.',
 }
 
 interface LessonScreenProps {
@@ -64,20 +68,42 @@ export function LessonScreen({
   return (
     <div className="stack">
       <ScreenHeader title={level.title} onBack={onHome} backLabel="Home" />
-      <p className="note">Press one key at a time. The glowing key is the one to find.</p>
+      <p className="note">
+        {level.id === 'beginner'
+          ? 'Press one key at a time. The glowing key is the one to find.'
+          : level.id === 'intermediate'
+            ? 'Type each word. The glowing key is the next letter.'
+            : level.id === 'master'
+              ? 'Type the whole paragraph. 40 words a minute earns 2 stars. 60 earns 3.'
+              : 'Type each sentence. The glowing key is the next one.'}
+      </p>
       <ul className="lesson-list">
-        {lessons.map((lesson, index) => (
-          <li key={lesson.id}>
-            <button type="button" className="lesson-row" onClick={() => onPlay(lesson.id)}>
-              <span className="lesson-row__index">{index + 1}</span>
-              <span className="lesson-row__copy">
-                <span className="lesson-row__title">{lesson.title}</span>
-                <span className="lesson-row__meta">{lesson.prompts.length} keys</span>
-              </span>
-              <span className="lesson-row__action">Start</span>
-            </button>
-          </li>
-        ))}
+        {lessons.map((lesson, index) => {
+          const stars = progress.lessons[lesson.id]?.stars
+          const count =
+            lesson.levelId === 'master' ? promptWordCount(lesson.prompts) : lesson.prompts.length
+          const size = lessonCountLabel(lesson.levelId, count)
+          return (
+            <li key={lesson.id}>
+              <button type="button" className="lesson-row" onClick={() => onPlay(lesson.id)}>
+                <span className="lesson-row__index">{index + 1}</span>
+                <span className="lesson-row__copy">
+                  <span className="lesson-row__title">{lesson.title}</span>
+                  <span className="lesson-row__meta">
+                    <span>{size}</span>
+                    {stars ? (
+                      <span className="lesson-row__stars">
+                        <StarRow filled={stars} compact />
+                        <span className="visually-hidden">{starLabel(stars)}</span>
+                      </span>
+                    ) : null}
+                  </span>
+                </span>
+                <span className="lesson-row__action">{stars ? 'Again' : 'Start'}</span>
+              </button>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

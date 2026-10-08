@@ -1,3 +1,4 @@
+import { emptyProgress, progressFromStored } from '../models/progress.ts'
 import type { Progress, Settings } from '../types/index.ts'
 
 const SETTINGS_KEY = 'myTypingTest.settings'
@@ -5,10 +6,6 @@ const PROGRESS_KEY = 'myTypingTest.progress'
 
 const defaultSettings: Settings = {
   soundEnabled: true,
-}
-
-const emptyProgress: Progress = {
-  completedLessonIds: [],
 }
 
 function readJson(key: string): unknown {
@@ -36,11 +33,14 @@ function isSettings(value: unknown): value is Settings {
   return typeof value.soundEnabled === 'boolean'
 }
 
-function isProgress(value: unknown): value is Progress {
-  if (typeof value !== 'object' || value === null) return false
-  if (!('completedLessonIds' in value)) return false
+function legacyProgress(value: unknown): Progress | null {
+  if (typeof value !== 'object' || value === null) return null
+  if (!('completedLessonIds' in value)) return null
   const ids = value.completedLessonIds
-  return Array.isArray(ids) && ids.every((id) => typeof id === 'string')
+  if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string')) return null
+  const lessons: Progress['lessons'] = {}
+  for (const id of ids) lessons[id] = { stars: 1 }
+  return { lessons }
 }
 
 export function loadSettings(): Settings {
@@ -54,5 +54,9 @@ export function saveSettings(settings: Settings): void {
 
 export function loadProgress(): Progress {
   const stored = readJson(PROGRESS_KEY)
-  return isProgress(stored) ? stored : emptyProgress
+  return progressFromStored(stored) ?? legacyProgress(stored) ?? emptyProgress()
+}
+
+export function saveProgress(progress: Progress): void {
+  writeJson(PROGRESS_KEY, progress)
 }

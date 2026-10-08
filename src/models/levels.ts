@@ -31,6 +31,13 @@ export const LEVELS: readonly Level[] = [
     summary: 'Type sentences and punctuation.',
     opensAfter: 'intermediate',
   },
+  {
+    id: 'master',
+    step: 4,
+    title: 'Master',
+    summary: 'Type a long paragraph. Speed earns more stars.',
+    opensAfter: 'expert',
+  },
 ]
 
 export function getLevel(levelId: LevelId): Level | undefined {
@@ -54,15 +61,50 @@ export function nextLessonAfter(lessonId: string): Lesson | undefined {
   return levelLessons[index + 1]
 }
 
+export function isLevelComplete(levelId: LevelId, progress: Progress): boolean {
+  const lessons = lessonsFor(levelId)
+  if (lessons.length === 0) return false
+  return lessons.every((lesson) => progress.lessons[lesson.id] !== undefined)
+}
+
 export function isLevelUnlocked(levelId: LevelId, progress: Progress): boolean {
   const level = getLevel(levelId)
   if (!level) return false
   if (!level.opensAfter) return true
+  return isLevelComplete(level.opensAfter, progress)
+}
 
-  const required = lessonsFor(level.opensAfter)
-  if (required.length === 0) return false
+export function nextLevelAfter(levelId: LevelId): Level | undefined {
+  const index = LEVELS.findIndex((level) => level.id === levelId)
+  if (index < 0) return undefined
+  return LEVELS[index + 1]
+}
 
-  return required.every((lesson) => progress.completedLessonIds.includes(lesson.id))
+export function levelProgressLabel(levelId: LevelId, progress: Progress): string | null {
+  const lessons = lessonsFor(levelId)
+  if (lessons.length === 0) return null
+  const done = lessons.filter((lesson) => progress.lessons[lesson.id] !== undefined).length
+  if (done === 0) return null
+  if (done === lessons.length) return `All ${lessons.length} lessons finished`
+  return `${done} of ${lessons.length} lessons`
+}
+
+export function progressNoun(levelId: LevelId): string {
+  if (levelId === 'intermediate') return 'Word'
+  if (levelId === 'expert') return 'Sentence'
+  if (levelId === 'master') return 'Paragraph'
+  return 'Letter'
+}
+
+export function lessonCountLabel(levelId: LevelId, count: number): string {
+  const unit =
+    levelId === 'intermediate' || levelId === 'master'
+      ? 'word'
+      : levelId === 'expert'
+        ? 'sentence'
+        : 'key'
+  const name = count === 1 ? unit : `${unit}s`
+  return `${count} ${name}`
 }
 
 export function lockTextFor(levelId: LevelId): string | null {

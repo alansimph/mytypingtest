@@ -8,6 +8,8 @@ import type { LevelId } from '../types/index.ts'
 export interface LessonResult {
   lessonId: string
   stars: StarCount
+  seconds: number
+  wordsPerMinute: number | null
 }
 
 export type AppView =

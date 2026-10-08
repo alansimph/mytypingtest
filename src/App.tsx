@@ -5,13 +5,26 @@ import { LessonScreen } from './screens/LessonScreen.tsx'
 import { PlayScreen } from './screens/PlayScreen.tsx'
 import { SettingsScreen } from './screens/SettingsScreen.tsx'
 import type { AppView } from './navigation/types.ts'
-import { getLesson, getLevel, nextLessonAfter } from './models/levels.ts'
+import {
+  getLesson,
+  getLevel,
+  isLevelComplete,
+  nextLessonAfter,
+  nextLevelAfter,
+} from './models/levels.ts'
+import { withLessonResult } from './models/progress.ts'
 import { useSettings } from './hooks/useSettings.ts'
-import { loadProgress } from './services/storage.ts'
+import { loadProgress, saveProgress } from './services/storage.ts'
+import type { LevelId, Progress } from './types/index.ts'
+
+function unlockedLevelTitle(levelId: LevelId, progress: Progress): string | null {
+  if (!isLevelComplete(levelId, progress)) return null
+  return nextLevelAfter(levelId)?.title ?? null
+}
 
 export function App() {
   const [view, setView] = useState<AppView>({ name: 'home' })
-  const [progress] = useState(loadProgress)
+  const [progress, setProgress] = useState(loadProgress)
   const { settings, setSoundEnabled } = useSettings()
 
   useEffect(() => {
@@ -36,8 +49,10 @@ export function App() {
     document.title = `${level?.title ?? 'Lesson'} · myTypingTest`
   }, [view])
 
+  const wideLesson = view.name === 'play' && getLesson(view.lessonId)?.levelId === 'master'
+
   return (
-    <main className="app">
+    <main className={wideLesson ? 'app app--wide' : 'app'}>
       {view.name === 'home' ? (
         <HomeScreen
           progress={progress}
@@ -58,19 +73,30 @@ export function App() {
           lessonId={view.lessonId}
           soundEnabled={settings.soundEnabled}
           onBack={() => setView({ name: 'lesson', levelId: view.levelId })}
-          onComplete={(stars) =>
+          onComplete={(stars, seconds, wordsPerMinute) => {
+            const lessonId = view.lessonId
+            setProgress((current) => {
+              const next = withLessonResult(current, lessonId, stars)
+              if (next !== current) saveProgress(next)
+              return next
+            })
             setView({
               name: 'lesson-complete',
               levelId: view.levelId,
-              result: { lessonId: view.lessonId, stars },
+              result: { lessonId, stars, seconds, wordsPerMinute },
             })
-          }
+          }}
         />
       ) : null}
       {view.name === 'lesson-complete' ? (
         <LessonCompleteScreen
           stars={view.result.stars}
+          seconds={view.result.seconds}
+          wordsPerMinute={view.result.wordsPerMinute}
+          bestStars={progress.lessons[view.result.lessonId]?.stars ?? view.result.stars}
+          soundEnabled={settings.soundEnabled}
           lessonTitle={getLesson(view.result.lessonId)?.title ?? 'Lesson'}
+          unlockedLevelTitle={unlockedLevelTitle(view.levelId, progress)}
           onBack={() => setView({ name: 'lesson', levelId: view.levelId })}
           onAgain={() =>
             setView({ name: 'play', levelId: view.levelId, lessonId: view.result.lessonId })
@@ -83,6 +109,15 @@ export function App() {
                   setView({ name: 'play', levelId: view.levelId, lessonId: next.id })
                 }
               : null
+          }
+          onOpenUnlockedLevel={
+            nextLessonAfter(view.result.lessonId) || !unlockedLevelTitle(view.levelId, progress)
+              ? null
+              : () => {
+                  const nextLevel = nextLevelAfter(view.levelId)
+                  if (!nextLevel) return
+                  setView({ name: 'lesson', levelId: nextLevel.id })
+                }
           }
         />
       ) : null}

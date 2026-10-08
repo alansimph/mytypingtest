@@ -19,7 +19,7 @@ export function SettingsScreen({
         <Switch
           checked={soundEnabled}
           label="Sound effects"
-          description="Plays a short sound when a key is right or wrong."
+          description="Plays a short sound for each key, and a tune when a lesson ends."
           onChange={onSoundEnabled}
         />
       </section>

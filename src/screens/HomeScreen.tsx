@@ -3,6 +3,7 @@ import { Button } from '../components/Button.tsx'
 import {
   LEVELS,
   isLevelUnlocked,
+  levelProgressLabel,
   lockTextFor,
 } from '../models/levels.ts'
 import type { LevelId, Progress } from '../types/index.ts'
@@ -36,7 +37,7 @@ export function HomeScreen({ progress, onOpenLevel, onOpenSettings }: HomeScreen
                 <LevelCard
                   step={level.step}
                   title={level.title}
-                  summary={level.summary}
+                  summary={levelProgressLabel(level.id, progress) ?? level.summary}
                   tone={level.id}
                   unlocked={unlocked}
                   lockText={unlocked ? null : lockTextFor(level.id)}
